@@ -1,6 +1,8 @@
 import express from 'express';
 import db from '../../db';
 import { CreatableBlurb } from '../../types';
+import { tokenCheck } from '../../middlewares/tokenCheck';
+
 
 const router = express.Router();
 
@@ -31,13 +33,11 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-
-router.post("/", async (req, res) => {
+router.post("/", tokenCheck, async (req, res) => {
     try {
         const { content } = req.body;
-        const user_id = 1; // Hardcoded as 1 here since BEFORE auth, we can't certify who is making what request
 
-        const newBlurb: CreatableBlurb = { content, user_id };
+        const newBlurb: CreatableBlurb = { content, user_id: req.user.id };
 
         const results = await db.blurbz.create(newBlurb);
         
@@ -48,7 +48,7 @@ router.post("/", async (req, res) => {
     }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", tokenCheck, async (req, res) => {
     const id = Number(req.params.id);
 
     const { content } = req.body;
@@ -62,7 +62,7 @@ router.put("/:id", async (req, res) => {
     }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", tokenCheck, async (req, res) => {
     const id = Number(req.params.id);
 
     try {

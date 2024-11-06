@@ -8,7 +8,12 @@ const mysql = {
     password: process.env.DB_PASSWORD,
 };
 
+const jwt = {
+    secret: process.env.JWT_SECRET as string,
+    expiration: process.env.JWT_EXPIRATION as string,
+};
 
 export default {
-  mysql
+  mysql,
+  jwt
 }

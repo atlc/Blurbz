@@ -19,3 +19,16 @@ export interface Blurb {
   created_at: Date;
   edited_at?: Date;
 }
+
+export interface Payload {
+  id: number;
+  email: string;
+}
+
+declare global {
+  namespace Express {
+    export interface Request {
+      user: Payload
+    }
+  }
+}

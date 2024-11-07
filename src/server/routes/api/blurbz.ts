@@ -1,19 +1,18 @@
-import express from 'express';
-import db from '../../db';
-import { CreatableBlurb } from '../../types';
-import { tokenCheck } from '../../middlewares/tokenCheck';
-
+import express from "express";
+import db from "../../db";
+import { CreatableBlurb } from "../../types";
+import { tokenCheck } from "../../middlewares/tokenCheck";
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
-  try {
-    const blurbz = await db.blurbz.getAll();
-    res.json(blurbz);
-  } catch (error) {
-    res.status(500).json({ message: "Can't get all blurbz at this time", error });
-    console.log(error);
-  }
+router.get("/", async (req, res) => {
+    try {
+        const blurbz = await db.blurbz.getAll();
+        res.json(blurbz);
+    } catch (error) {
+        res.status(500).json({ message: "Can't get all blurbz at this time", error });
+        console.log(error);
+    }
 });
 
 router.get("/:id", async (req, res) => {
@@ -23,9 +22,9 @@ router.get("/:id", async (req, res) => {
         const [blurb] = await db.blurbz.getOne(id);
 
         if (blurb) {
-          res.json(blurb);
+            res.json(blurb);
         } else {
-          res.status(404).json({ message: `No blurb with the id of ${id} was found` })
+            res.status(404).json({ message: `No blurb with the id of ${id} was found` });
         }
     } catch (error) {
         res.status(500).json({ message: "Can't get that blurb at this time", error });
@@ -36,11 +35,12 @@ router.get("/:id", async (req, res) => {
 router.post("/", tokenCheck, async (req, res) => {
     try {
         const { content } = req.body;
-
-        const newBlurb: CreatableBlurb = { content, user_id: req.user.id };
+        const newBlurb: CreatableBlurb = { content, user_id: req.user!.id };
 
         const results = await db.blurbz.create(newBlurb);
-        
+
+        console.log(req.user)
+
         res.status(201).json({ message: "Successfully created blurb!", id: results.insertId });
     } catch (error) {
         res.status(500).json({ message: "Can't create a blurb at this time", error });
@@ -73,7 +73,5 @@ router.delete("/:id", tokenCheck, async (req, res) => {
         console.log(error);
     }
 });
-
-
 
 export default router;

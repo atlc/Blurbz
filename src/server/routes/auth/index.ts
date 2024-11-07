@@ -3,6 +3,7 @@ import db from "../../db";
 import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken'
 import config from "../../config";
+import passport from "passport";
 
 const router = express.Router();
 
@@ -36,35 +37,17 @@ router.post("/register", async (req, res) => {
     }
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", passport.authenticate("local", { session: false }), async (req, res) => {
+    const reqUser = req.user;
+
+    if (!reqUser) {
+      return res.status(401).json({ message: "Pls log in again" });
+    }
+
+    const { email, id } = reqUser;
+
     try {
-        const { email, password } = req.body;
-
-        if (!email || typeof email !== "string" || email.length < 7 || email.length > 128) {
-            res.status(400).json({ message: "Email is required and must be between 7 and 128 characters" });
-            return;
-        }
-
-        if (!password || typeof password !== "string" || password.length < 10 || password.length > 200) {
-            res.status(400).json({ message: "Password is required and must be between 10 and 200 characters" });
-            return;
-        }
-
-        const [user] = await db.users.find(email);
-
-        if (!user) {
-          res.status(401).json({ message: "Invalid email/password combo" });
-          return;
-        }
-
-        const passwordsMatched = bcrypt.compareSync(password, user.password);
-
-        if (!passwordsMatched) {
-          res.status(401).json({ message: "Invalid email/password combo" });
-          return;
-        }
-
-        const token = jwt.sign({ email, id: user.id }, config.jwt.secret, { expiresIn: config.jwt.expiration });
+        const token = jwt.sign({ email, id }, config.jwt.secret, { expiresIn: config.jwt.expiration });
 
         res.json({ message: `Welcome, ${email}!`, token });
     } catch (error) {

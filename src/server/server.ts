@@ -1,12 +1,14 @@
 import express from "express";
 import cors from "cors";
 import indexRouter from "./routes";
+import { configurePassport } from "./middlewares/passport-strategies";
 
 const isProduction = process.env.NODE_ENV === "production";
 const isDevelopment = process.env.NODE_ENV === "development";
 
 const app = express();
 app.use(express.json());
+configurePassport(app);
 
 if (isDevelopment) {
     app.use(cors());

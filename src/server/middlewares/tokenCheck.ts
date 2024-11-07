@@ -1,25 +1,27 @@
-import express from 'express';
-import jwt from 'jsonwebtoken';
-import config from '../config';
-import { Payload } from '../types';
+import { RequestHandler } from "express";
+import passport from "passport";
+import { Payload } from "../types";
 
-export const tokenCheck: express.RequestHandler = (req, res, next) => {
-    const authHeader = req.headers.authorization;
 
-    if (!authHeader) {
-        res.status(401).json({ message: "No auth header" });
-        return;
+export const tokenCheck: RequestHandler = (req, res, next) => {
+  passport.authenticate('jwt', { session: false }, (err: Error, user: Payload, info: Error) => {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ message: `An unexpected server error occurred - ${err.message}` });
+      return;
     }
 
-    const token = authHeader.split(" ")[1];
-
-    try {
-      const user = jwt.verify(token, config.jwt.secret) as Payload;
-
-      req.user = user;
-      next();
-    } catch (error) {
-      res.status(401).json({ message: "Invalid credentials, please try logging in again", error });
-      console.log(error);
+    if (info) {
+      res.status(401).json({ message: `An error occurred (${info.message}). Please try logging in again` });
+      return;
     }
+
+    if (!user) {
+      res.status(401).json({ message: "Could not validate user, please try logging in again" });
+      return;
+    }
+
+    req.user = user;
+    next();
+  })(req, res, next);
 }

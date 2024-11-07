@@ -4,21 +4,22 @@ import { sassPlugin } from 'esbuild-sass-plugin';
 
 try {
     await esbuild.build({
-        entryPoints: ['src/client/index.tsx'],
+        entryPoints: ["src/client/index.tsx"],
         bundle: true,
         sourcemap: false,
         minify: true,
-        outfile: 'public/static/bundle.js',
+        outfile: "public/static/bundle.js",
         define: {
-            'process.env.NODE_ENV': "'production'"
+            "process.env.NODE_ENV": "'production'",
+            "process.env.SERVER_URL": "''",
         },
         plugins: [
             sassPlugin({
-                type: 'style',
+                type: "style",
                 quietDeps: true,
-                logger: sass.Logger.silent
-            })
-        ]
+                logger: sass.Logger.silent,
+            }),
+        ],
     });
 
     console.log('Client bundled successfully for production!');

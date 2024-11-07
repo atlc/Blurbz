@@ -31,6 +31,7 @@ export const configurePassport = (app: Express) => {
 
     passport.use(
         new PassportJWT.Strategy({ jwtFromRequest: PassportJWT.ExtractJwt.fromAuthHeaderAsBearerToken(), secretOrKey: config.jwt.secret }, (payload, done) => {
+            console.log("HERE");
             done(null, payload);
         })
     );

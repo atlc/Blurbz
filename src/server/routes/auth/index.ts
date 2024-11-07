@@ -1,9 +1,10 @@
 import express from "express";
 import db from "../../db";
 import bcrypt from "bcrypt";
-import jwt from 'jsonwebtoken'
+import jwt from "jsonwebtoken";
 import config from "../../config";
 import passport from "passport";
+import { tokenCheck } from "../../middlewares/tokenCheck";
 
 const router = express.Router();
 
@@ -29,8 +30,11 @@ router.post("/register", async (req, res) => {
 
         newUser.password = hash;
 
-        await db.users.register(newUser);
-        res.status(201).json({ message: "Successfully registered!" });
+        const results = await db.users.register(newUser);
+
+        const token = jwt.sign({ email, id: results.insertId }, config.jwt.secret, { expiresIn: config.jwt.expiration });
+
+        res.status(201).json({ message: "Successfully registered!", token });
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: "Couldn't register your account at this time, please try again later" });
@@ -41,7 +45,7 @@ router.post("/login", passport.authenticate("local", { session: false }), async 
     const reqUser = req.user;
 
     if (!reqUser) {
-      return res.status(401).json({ message: "Pls log in again" });
+        return res.status(401).json({ message: "Pls log in again" });
     }
 
     const { email, id } = reqUser;
@@ -55,5 +59,7 @@ router.post("/login", passport.authenticate("local", { session: false }), async 
         res.status(500).json({ message: "Couldn't login at this time, please try again later" });
     }
 });
+
+router.get("/token_check", tokenCheck, (req, res) => res.status(200).json({ message: "Hell yeah" }));
 
 export default router;

@@ -9,7 +9,7 @@ const BlurbDetails = () => {
     const { id } = useParams();
 
     useEffect(() => {
-        GET(`/api/blurbz/${id}`).then((blurbData) => setBlurb(blurbData));
+        GET(`/api/blurbz/${id}`).then((blurbData) => setBlurb(blurbData as Blurb));
     }, [id]);
 
     return (
@@ -24,7 +24,11 @@ const BlurbDetails = () => {
                                 <div className="card-body">
                                     <em>{blurb.content}</em>
                                     <div className="card-footer">
-                                        <p>{blurb.edited_at ? `Last edited at ${blurb.edited_at.toLocaleString()}` : `Created at ${blurb.created_at.toLocaleString()}`}</p>
+                                        <p>
+                                            {blurb.edited_at
+                                                ? `Last edited at ${new Date(blurb.edited_at).toLocaleString()}`
+                                                : `Created at ${new Date(blurb.created_at).toLocaleString()}`}
+                                        </p>
                                         <Link to={`/blurbz/${id}/edit`} className="btn btn-warning">
                                             Edit me
                                         </Link>

@@ -6,6 +6,9 @@ import AllBlurbz from "./views/AllBlurbz";
 import BlurbDetails from "./views/BlurbDetails";
 import EditBlurb from "./views/EditBlurb";
 import Navbar from "./components/Navbar";
+import Register from "./views/Register";
+import Login from "./views/Login";
+import AuthWrapper from "./components/AuthWrapper";
 
 const App = () => {
     return (
@@ -13,12 +16,26 @@ const App = () => {
             <Navbar />
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/create" element={<Create />} />
+                <Route
+                    path="/create"
+                    element={
+                        <AuthWrapper>
+                            <Create />
+                        </AuthWrapper>
+                    }
+                />
                 <Route path="/blurbz" element={<AllBlurbz />} />
                 <Route path="/blurbz/:id" element={<BlurbDetails />} />
-                <Route path="/blurbz/:id/edit" element={<EditBlurb />} />
-                <Route path="/login" element={<h1>Login</h1>} />
-                <Route path="/register" element={<h1>Register</h1>} />
+                <Route
+                    path="/blurbz/:id/edit"
+                    element={
+                        <AuthWrapper>
+                            <EditBlurb />
+                        </AuthWrapper>
+                    }
+                />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
             </Routes>
         </BrowserRouter>
     );
